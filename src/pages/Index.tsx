@@ -28,6 +28,23 @@ export default function Index({ onLogout }: IndexProps) {
 
   useEffect(() => {
     loadArticles();
+    
+    // Set up polling every 3 seconds for 10 minutes
+    const pollInterval = setInterval(() => {
+      loadArticlesInBackground();
+    }, 3000); // 3 seconds
+    
+    // Stop polling after 10 minutes
+    const stopPollingTimeout = setTimeout(() => {
+      clearInterval(pollInterval);
+      console.log('Stopped polling articles after 10 minutes');
+    }, 10 * 60 * 1000); // 10 minutes
+    
+    // Cleanup on unmount
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(stopPollingTimeout);
+    };
   }, []);
 
   const loadArticles = async () => {
@@ -41,6 +58,18 @@ export default function Index({ onLogout }: IndexProps) {
       console.error('Error loading articles:', err);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const loadArticlesInBackground = async () => {
+    try {
+      const data = await blogAPI.getArticles({ limit: 100 });
+      setArticles(data);
+      // Clear any previous errors on successful load
+      if (error) setError(null);
+    } catch (err) {
+      // Don't show error for background updates to avoid UI flickering
+      console.error('Error loading articles in background:', err);
     }
   };
 
