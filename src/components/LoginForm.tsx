@@ -75,7 +75,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                   placeholder="Введите логин"
                   required
                   autoFocus
-                  className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-11 border-gray-200 focus:border-primary focus:ring-primary"
                 />
               </div>
 
@@ -90,7 +90,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Введите пароль"
                   required
-                  className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-11 border-gray-200 focus:border-primary focus:ring-primary"
                 />
               </div>
 

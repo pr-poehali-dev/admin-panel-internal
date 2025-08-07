@@ -135,7 +135,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
             placeholder="Как скачать сайт из билдера Поехали!"
             value={newArticle.topic}
             onChange={(e) => setNewArticle({ ...newArticle, topic: e.target.value })}
-            className="mt-1 border-gray-300 focus:border-blue-500"
+            className="mt-1 border-gray-300 focus:border-primary"
           />
         </div>
         
@@ -148,7 +148,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
             placeholder="https://docs.poehali.dev/deploy/download_project"
             value={newArticle.additional_context_url}
             onChange={(e) => setNewArticle({ ...newArticle, additional_context_url: e.target.value })}
-            className="mt-1 border-gray-300 focus:border-blue-500"
+            className="mt-1 border-gray-300 focus:border-primary"
           />
         </div>
         
@@ -164,7 +164,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
             className="mt-1 border-gray-300"
           />
           {uploadingImages && (
-            <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
+            <p className="text-sm text-primary mt-2 flex items-center gap-2">
               <Icon name="Loader2" size={14} className="animate-spin" />
               {uploadProgress || 'Загрузка изображений...'}
             </p>
