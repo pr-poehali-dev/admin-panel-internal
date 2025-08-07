@@ -104,7 +104,7 @@ export default function ArticleCard({ article, onEdit, onDelete, onTogglePublish
               onClick={() => onTogglePublish(article.id)}
               className={article.is_published 
                 ? "text-gray-600 border-gray-300 hover:bg-gray-50" 
-                : "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-primary hover:bg-primary/90 text-white"
               }
             >
               {article.is_published ? (
