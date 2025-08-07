@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Icon from '@/components/ui/icon';
 import { blogAPI } from '@/services/api';
+import { processImages } from '@/utils/imageCompression';
 
 interface ImageUpload {
   filename: string;
@@ -56,7 +57,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    // Check file sizes
+    // Check file sizes before compression
     const MAX_SIZE_MB = 10;
     const oversized = Array.from(files).filter(f => f.size > MAX_SIZE_MB * 1024 * 1024);
     if (oversized.length > 0) {
@@ -67,11 +68,17 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     }
 
     setUploadingImages(true);
-    setUploadProgress(`Загрузка ${files.length} файлов...`);
+    setUploadProgress(`Обработка ${files.length} файлов...`);
     
     try {
+      // Compress images if needed
+      const filesArray = Array.from(files);
+      const processedFiles = await processImages(filesArray);
+      
+      setUploadProgress(`Загрузка ${processedFiles.length} файлов...`);
+      
       const response = await blogAPI.uploadImages(
-        Array.from(files),
+        processedFiles,
         newArticle.articleSlug || undefined
       );
 
