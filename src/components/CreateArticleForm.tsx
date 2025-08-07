@@ -153,9 +153,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
         </div>
         
         <div>
-          <Label htmlFor="image-upload" className="text-sm font-medium text-gray-700">
-            Изображения для статьи (максимум 10MB на файл)
-          </Label>
+          <Label htmlFor="image-upload" className="text-sm font-medium text-gray-700">Изображения для статьи</Label>
           <Input
             id="image-upload"
             type="file"
