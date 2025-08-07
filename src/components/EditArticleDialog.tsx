@@ -98,7 +98,7 @@ export default function EditArticleDialog({ article, loading, onUpdate, updateSu
         <div className="flex items-center gap-3 pt-2">
           <Button 
             onClick={() => onUpdate(editingArticle)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-black hover:bg-gray-800"
           >
             Сохранить изменения
           </Button>
