@@ -294,6 +294,20 @@ export default function Index({ onLogout }: IndexProps) {
                     </CardContent>
                   </Card>
                 ))
+              ) : articles.length === 0 ? (
+                <Card className="border-gray-200">
+                  <CardContent className="p-12 text-center">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                        <Icon name="FileText" size={32} className="text-gray-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">Статей пока нет</h3>
+                        <p className="text-gray-500">Создайте первую статью во вкладке "Создать"</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ) : articles.map((article) => (
                 <Card key={article.id} className="border-gray-200 hover:shadow-md transition-all duration-200">
                   <CardContent className="p-6">
