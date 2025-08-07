@@ -107,8 +107,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     <Card className="border-gray-200">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Icon name="Sparkles" size={20} className="text-blue-600" />
+          <CardTitle className="text-xl">
             Создать статью
           </CardTitle>
           {createStatus === 'success' && (
