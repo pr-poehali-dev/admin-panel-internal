@@ -105,7 +105,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                className="w-full h-11 bg-black hover:bg-gray-800 text-white font-medium transition-colors"
                 disabled={loading || !username || !password}
               >
                 {loading ? (

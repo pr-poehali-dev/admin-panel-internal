@@ -207,7 +207,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
         <Button 
           onClick={handleCreateArticle} 
           disabled={!newArticle.topic.trim()}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11"
+          className="w-full bg-black hover:bg-gray-800 text-white h-11"
         >
           <Icon name="Wand2" size={16} className="mr-2" />
           Создать статью
