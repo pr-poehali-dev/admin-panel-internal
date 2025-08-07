@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5005/api';
+const API_BASE_URL = 'https://api.poehali.dev/api';
 
 export interface ArticleTag {
   id: string;
