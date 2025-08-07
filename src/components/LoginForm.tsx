@@ -122,11 +122,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
               </Button>
             </form>
 
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <p className="text-xs text-center text-gray-500">
-                Введите ваши учетные данные администратора
-              </p>
-            </div>
+
           </CardContent>
         </Card>
       </div>
