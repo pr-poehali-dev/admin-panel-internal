@@ -150,7 +150,7 @@ export default function Index({ onLogout }: IndexProps) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-xl">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#000000]">
                 <Icon name="Rocket" size={20} className="text-white" />
               </div>
               <div>
