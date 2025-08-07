@@ -26,6 +26,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     articleSlug: ''
   });
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>('');
   const [createStatus, setCreateStatus] = useState<'success' | 'error' | null>(null);
 
   const handleCreateArticle = async () => {
@@ -55,7 +56,19 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    // Check file sizes
+    const MAX_SIZE_MB = 10;
+    const oversized = Array.from(files).filter(f => f.size > MAX_SIZE_MB * 1024 * 1024);
+    if (oversized.length > 0) {
+      const names = oversized.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`).join(', ');
+      alert(`Файлы слишком большие (максимум ${MAX_SIZE_MB}MB): ${names}`);
+      event.target.value = '';
+      return;
+    }
+
     setUploadingImages(true);
+    setUploadProgress(`Загрузка ${files.length} файлов...`);
+    
     try {
       const response = await blogAPI.uploadImages(
         Array.from(files),
@@ -67,6 +80,8 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
         images: [...prev.images, ...response.images],
         articleSlug: response.article_slug
       }));
+      
+      setUploadProgress('');
     } catch (error) {
       console.error('Failed to upload images:', error);
       if (error instanceof Error) {
@@ -76,6 +91,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
       }
     } finally {
       setUploadingImages(false);
+      setUploadProgress('');
       event.target.value = '';
     }
   };
@@ -131,7 +147,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
         
         <div>
           <Label htmlFor="image-upload" className="text-sm font-medium text-gray-700">
-            Изображения для статьи
+            Изображения для статьи (максимум 10MB на файл)
           </Label>
           <Input
             id="image-upload"
@@ -145,7 +161,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
           {uploadingImages && (
             <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
               <Icon name="Loader2" size={14} className="animate-spin" />
-              Загрузка изображений...
+              {uploadProgress || 'Загрузка изображений...'}
             </p>
           )}
           {newArticle.images.length > 0 && (

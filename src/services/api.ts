@@ -168,6 +168,49 @@ class BlogAPI {
   }
 
   async uploadImages(files: File[], articleSlug?: string): Promise<ImagesUploadResponse> {
+    // Check file sizes before upload
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+    
+    if (oversizedFiles.length > 0) {
+      const sizes = oversizedFiles.map(f => `${f.name}: ${(f.size / 1024 / 1024).toFixed(2)}MB`).join(', ');
+      throw new Error(`Файлы слишком большие (максимум 10MB): ${sizes}`);
+    }
+
+    // Try uploading files one by one if multiple files fail
+    if (files.length > 1) {
+      try {
+        // First try all at once
+        return await this.uploadImagesInternal(files, articleSlug);
+      } catch (error) {
+        console.log('Batch upload failed, trying one by one...');
+        
+        // Upload one by one
+        const allImages: any[] = [];
+        let resultSlug = articleSlug;
+        
+        for (const file of files) {
+          try {
+            const result = await this.uploadImagesInternal([file], resultSlug);
+            allImages.push(...result.images);
+            resultSlug = result.article_slug;
+          } catch (err) {
+            console.error(`Failed to upload ${file.name}:`, err);
+            throw err;
+          }
+        }
+        
+        return {
+          images: allImages,
+          article_slug: resultSlug || ''
+        };
+      }
+    }
+    
+    return this.uploadImagesInternal(files, articleSlug);
+  }
+
+  private async uploadImagesInternal(files: File[], articleSlug?: string): Promise<ImagesUploadResponse> {
     const formData = new FormData();
     files.forEach(file => {
       formData.append('files', file);
@@ -198,6 +241,9 @@ class BlogAPI {
         if (response.status === 401) {
           this.clearCredentials();
           throw new Error('Authentication failed: 401');
+        }
+        if (response.status === 413) {
+          throw new Error('Файл слишком большой. Максимальный размер: 10MB');
         }
         const errorText = await response.text();
         console.error('Upload error response:', errorText);
