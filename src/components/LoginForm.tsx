@@ -50,7 +50,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 bg-[#000000]">
             <Icon name="Rocket" size={28} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Поехали!</h1>
