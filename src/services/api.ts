@@ -103,6 +103,7 @@ class BlogAPI {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
+      mode: 'cors',
     });
 
     if (!response.ok) {
@@ -185,21 +186,29 @@ class BlogAPI {
     headers['Authorization'] = `Basic ${auth}`;
     // Don't set Content-Type for FormData - browser will set it with boundary
 
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: 'POST',
+        headers,
+        body: formData,
+        mode: 'cors',
+      });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        this.clearCredentials();
-        throw new Error('Authentication failed: 401');
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.clearCredentials();
+          throw new Error('Authentication failed: 401');
+        }
+        const errorText = await response.text();
+        console.error('Upload error response:', errorText);
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
 
-    return response.json();
+      return response.json();
+    } catch (error) {
+      console.error('Upload error details:', error);
+      throw error;
+    }
   }
 
   async deleteArticle(id: string): Promise<{ message: string }> {

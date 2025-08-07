@@ -69,7 +69,11 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
       }));
     } catch (error) {
       console.error('Failed to upload images:', error);
-      alert('Ошибка при загрузке изображений');
+      if (error instanceof Error) {
+        alert(`Ошибка при загрузке изображений: ${error.message}`);
+      } else {
+        alert('Ошибка при загрузке изображений');
+      }
     } finally {
       setUploadingImages(false);
       event.target.value = '';
