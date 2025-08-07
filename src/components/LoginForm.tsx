@@ -33,8 +33,10 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       // If successful, call onSuccess
       onSuccess();
     } catch (err: any) {
-      if (err.message === 'Authentication required' || err.message.includes('401')) {
+      if (err.message.includes('401')) {
         setError('Неверный логин или пароль');
+      } else if (err.message.includes('Authentication')) {
+        setError('Требуется авторизация');
       } else {
         setError('Ошибка подключения к серверу');
       }
@@ -122,7 +124,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
             <div className="mt-6 pt-4 border-t border-gray-100">
               <p className="text-xs text-center text-gray-500">
-                Тестовые данные: admin / password
+                Введите ваши учетные данные администратора
               </p>
             </div>
           </CardContent>

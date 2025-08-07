@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-import { blogAPI, ArticleListItem, ArticleDetail } from '@/services/api';
+import { blogAPI, ArticleListItem, ArticleDetail, ArticleTag } from '@/services/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -150,10 +150,7 @@ export default function Index({ onLogout }: IndexProps) {
       });
       
       // Update in local state
-      setArticles(prev => prev.map(a => a.id === updated.id ? {
-        ...updated,
-        tags: updated.tags || updatedArticle.tags // Keep tags if not returned
-      } : a));
+      setArticles(prev => prev.map(a => a.id === updated.id ? updated : a));
       
       // Show success indicator
       setUpdateSuccess(true);
