@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Icon from '@/components/ui/icon';
 import { blogAPI } from '@/services/api';
-import { processImages } from '@/utils/imageCompression';
 
 interface ImageUpload {
   filename: string;
@@ -68,17 +67,11 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     }
 
     setUploadingImages(true);
-    setUploadProgress(`Обработка ${files.length} файлов...`);
+    setUploadProgress(`Загрузка ${files.length} файлов...`);
     
     try {
-      // Compress images if needed
-      const filesArray = Array.from(files);
-      const processedFiles = await processImages(filesArray);
-      
-      setUploadProgress(`Загрузка ${processedFiles.length} файлов...`);
-      
       const response = await blogAPI.uploadImages(
-        processedFiles,
+        Array.from(files),
         newArticle.articleSlug || undefined
       );
 
