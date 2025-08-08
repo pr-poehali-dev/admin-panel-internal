@@ -11,6 +11,7 @@ import ArticleCard from '@/components/ArticleCard';
 import CreateArticleForm from '@/components/CreateArticleForm';
 import EditArticleDialog from '@/components/EditArticleDialog';
 import DeleteArticleDialog from '@/components/DeleteArticleDialog';
+import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
 
 interface IndexProps {
   onLogout: () => void;
@@ -25,6 +26,8 @@ export default function Index({ onLogout }: IndexProps) {
   const [editingArticle, setEditingArticle] = useState<ArticleDetail | null>(null);
   const [loadingArticle, setLoadingArticle] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [previewArticle, setPreviewArticle] = useState<ArticleDetail | null>(null);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   useEffect(() => {
     loadArticles();
@@ -142,6 +145,20 @@ export default function Index({ onLogout }: IndexProps) {
     } catch (error) {
       console.error('Failed to update article:', error);
       alert('Ошибка при обновлении статьи');
+    }
+  };
+
+  const handlePreviewArticle = async (id: string) => {
+    setLoadingArticle(true);
+    try {
+      const fullArticle = await blogAPI.getArticle(id);
+      setPreviewArticle(fullArticle);
+      setShowPreviewDialog(true);
+    } catch (error) {
+      console.error('Failed to load article:', error);
+      setError('Не удалось загрузить статью для предпросмотра');
+    } finally {
+      setLoadingArticle(false);
     }
   };
 
@@ -265,6 +282,7 @@ export default function Index({ onLogout }: IndexProps) {
                   key={article.id}
                   article={article}
                   onEdit={handleEditArticle}
+                  onPreview={handlePreviewArticle}
                   onDelete={(id) => {
                     setDeletingArticleId(id);
                     setShowDeleteDialog(true);
@@ -288,6 +306,18 @@ export default function Index({ onLogout }: IndexProps) {
             updateSuccess={updateSuccess}
           />
         </Dialog>
+
+        <ArticlePreviewDialog
+          article={previewArticle}
+          content={previewArticle?.content || ''}
+          open={showPreviewDialog}
+          onOpenChange={(open) => {
+            setShowPreviewDialog(open);
+            if (!open) {
+              setPreviewArticle(null);
+            }
+          }}
+        />
 
         <DeleteArticleDialog
           open={showDeleteDialog}
