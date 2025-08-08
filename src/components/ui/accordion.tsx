@@ -53,19 +53,4 @@ const AccordionContent = React.forwardRef<
 
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
-// Custom component for MDX compatibility
-const AccordionGroup = ({ children }: { children: React.ReactNode }) => (
-  <Accordion type="single" collapsible className="w-full">
-    {children}
-  </Accordion>
-)
-
-// Custom Accordion component for MDX with simplified API
-const AccordionSimple = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <AccordionItem value={title}>
-    <AccordionTrigger>{title}</AccordionTrigger>
-    <AccordionContent>{children}</AccordionContent>
-  </AccordionItem>
-)
-
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, AccordionGroup, AccordionSimple }
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
