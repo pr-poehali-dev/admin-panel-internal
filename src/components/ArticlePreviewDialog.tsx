@@ -187,6 +187,12 @@ export default function ArticlePreviewDialog({
             </li>
           );
         }
+        // Horizontal rule
+        else if (line.trim() === '---') {
+          elements.push(
+            <hr key={i} className="my-8 border-t border-gray-300" />
+          );
+        }
         // Regular paragraphs
         else if (line.trim() !== '') {
           elements.push(
