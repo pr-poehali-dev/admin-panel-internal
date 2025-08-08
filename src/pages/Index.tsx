@@ -11,6 +11,7 @@ import ArticleCard from '@/components/ArticleCard';
 import CreateArticleForm from '@/components/CreateArticleForm';
 import EditArticleDialog from '@/components/EditArticleDialog';
 import DeleteArticleDialog from '@/components/DeleteArticleDialog';
+import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
 
 interface IndexProps {
   onLogout: () => void;
@@ -25,6 +26,8 @@ export default function Index({ onLogout }: IndexProps) {
   const [editingArticle, setEditingArticle] = useState<ArticleDetail | null>(null);
   const [loadingArticle, setLoadingArticle] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [previewArticle, setPreviewArticle] = useState<ArticleDetail | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   useEffect(() => {
     loadArticles();
@@ -123,6 +126,25 @@ export default function Index({ onLogout }: IndexProps) {
       }
     } finally {
       setLoadingArticle(false);
+    }
+  };
+
+  const handlePreviewArticle = async (articleId: string) => {
+    setLoadingPreview(true);
+    try {
+      const fullArticle = await blogAPI.getArticle(articleId);
+      setPreviewArticle(fullArticle);
+    } catch (error) {
+      console.error('Failed to load article for preview:', error);
+      const article = articles.find(a => a.id === articleId);
+      if (article) {
+        setPreviewArticle({
+          ...article,
+          content: 'Не удалось загрузить содержание статьи'
+        } as ArticleDetail);
+      }
+    } finally {
+      setLoadingPreview(false);
     }
   };
 
@@ -270,6 +292,7 @@ export default function Index({ onLogout }: IndexProps) {
                     setShowDeleteDialog(true);
                   }}
                   onTogglePublish={togglePublish}
+                  onPreview={handlePreviewArticle}
                 />
               ))}
             </div>
@@ -301,6 +324,13 @@ export default function Index({ onLogout }: IndexProps) {
             setShowDeleteDialog(false);
             setDeletingArticleId(null);
           }}
+        />
+
+        <ArticlePreviewDialog
+          article={previewArticle}
+          loading={loadingPreview}
+          open={!!previewArticle}
+          onOpenChange={(open) => !open && setPreviewArticle(null)}
         />
       </div>
     </div>

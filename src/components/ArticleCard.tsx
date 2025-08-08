@@ -11,6 +11,7 @@ interface ArticleCardProps {
   onEdit: (articleId: string) => void;
   onDelete: (articleId: string) => void;
   onTogglePublish: (articleId: string) => void;
+  onPreview: (articleId: string) => void;
 }
 
 const getStatusColor = (status: string) => {
@@ -31,7 +32,7 @@ const getStatusIcon = (status: string) => {
   }
 };
 
-export default function ArticleCard({ article, onEdit, onDelete, onTogglePublish }: ArticleCardProps) {
+export default function ArticleCard({ article, onEdit, onDelete, onTogglePublish, onPreview }: ArticleCardProps) {
   return (
     <Card className="border-gray-200 hover:shadow-md transition-all duration-200">
       <CardContent className="p-6">
@@ -76,6 +77,16 @@ export default function ArticleCard({ article, onEdit, onDelete, onTogglePublish
             </div>
           </div>
           <div className="flex gap-2 ml-6">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-300 hover:bg-gray-50"
+              onClick={() => onPreview(article.id)}
+              title="Предпросмотр"
+            >
+              <Icon name="Eye" size={16} />
+            </Button>
+            
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -83,6 +94,7 @@ export default function ArticleCard({ article, onEdit, onDelete, onTogglePublish
                   size="sm"
                   className="border-gray-300 hover:bg-gray-50"
                   onClick={() => onEdit(article.id)}
+                  title="Редактировать"
                 >
                   <Icon name="Edit" size={16} />
                 </Button>
@@ -94,6 +106,7 @@ export default function ArticleCard({ article, onEdit, onDelete, onTogglePublish
               size="sm"
               onClick={() => onDelete(article.id)}
               className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+              title="Удалить"
             >
               <Icon name="Trash2" size={16} />
             </Button>
