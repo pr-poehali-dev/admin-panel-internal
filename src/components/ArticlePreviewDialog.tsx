@@ -93,7 +93,22 @@ export default function ArticlePreviewDialog({
             </h3>
           );
         } 
-        // Images
+        // Images - Markdown format ![alt](url)
+        else if (line.match(/!\[([^\]]*)\]\(([^)]+)\)/)) {
+          const match = line.match(/!\[([^\]]*)\]\(([^)]+)\)/);
+          if (match) {
+            const [_, alt, src] = match;
+            elements.push(
+              <img 
+                key={index}
+                src={src} 
+                alt={alt} 
+                className="max-w-full h-auto rounded-lg mb-4 mx-auto"
+              />
+            );
+          }
+        }
+        // Images - HTML format
         else if (line.includes('<img')) {
           const srcMatch = line.match(/src="([^"]+)"/);
           const altMatch = line.match(/alt="([^"]+)"/);
