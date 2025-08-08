@@ -70,25 +70,67 @@ export default function ArticlePreviewDialog({
       // This is a simplified version that handles basic markdown
       const lines = content.split('\n');
       const elements: React.ReactNode[] = [];
-      let currentIndex = 0;
+      let i = 0;
 
-      lines.forEach((line, index) => {
+      while (i < lines.length) {
+        const line = lines[i];
+        
+        // Check for HTML blocks (div with align center containing img)
+        if (line.trim().startsWith('<div') && line.includes('align="center"')) {
+          // Look for the complete div block
+          let htmlBlock = line + '\n';
+          let j = i + 1;
+          
+          while (j < lines.length && !lines[j].includes('</div>')) {
+            htmlBlock += lines[j] + '\n';
+            j++;
+          }
+          
+          if (j < lines.length && lines[j].includes('</div>')) {
+            htmlBlock += lines[j];
+            
+            // Extract image from the HTML block
+            const imgMatch = htmlBlock.match(/<img[^>]+>/);
+            if (imgMatch) {
+              const srcMatch = imgMatch[0].match(/src="([^"]+)"/);
+              const altMatch = imgMatch[0].match(/alt="([^"]+)"/);
+              const widthMatch = imgMatch[0].match(/width="([^"]+)"/);
+              
+              if (srcMatch) {
+                elements.push(
+                  <div key={i} className="flex justify-center mb-4">
+                    <img 
+                      src={srcMatch[1]} 
+                      alt={altMatch ? altMatch[1] : ''} 
+                      width={widthMatch ? widthMatch[1] : undefined}
+                      className="h-auto rounded-lg"
+                    />
+                  </div>
+                );
+              }
+            }
+            
+            i = j + 1;
+            continue;
+          }
+        }
+        
         // Headers
         if (line.startsWith('# ')) {
           elements.push(
-            <h1 key={index} className="text-3xl font-bold mb-4 mt-8">
+            <h1 key={i} className="text-3xl font-bold mb-4 mt-8">
               {line.slice(2)}
             </h1>
           );
         } else if (line.startsWith('## ')) {
           elements.push(
-            <h2 key={index} className="text-2xl font-semibold mb-3 mt-6">
+            <h2 key={i} className="text-2xl font-semibold mb-3 mt-6">
               {line.slice(3)}
             </h2>
           );
         } else if (line.startsWith('### ')) {
           elements.push(
-            <h3 key={index} className="text-xl font-semibold mb-2 mt-4">
+            <h3 key={i} className="text-xl font-semibold mb-2 mt-4">
               {line.slice(4)}
             </h3>
           );
@@ -100,7 +142,7 @@ export default function ArticlePreviewDialog({
             const [_, alt, src] = match;
             elements.push(
               <img 
-                key={index}
+                key={i}
                 src={src} 
                 alt={alt} 
                 className="max-w-full h-auto rounded-lg mb-4 mx-auto"
@@ -108,16 +150,18 @@ export default function ArticlePreviewDialog({
             );
           }
         }
-        // Images - HTML format
-        else if (line.includes('<img')) {
+        // Standalone Images - HTML format
+        else if (line.includes('<img') && !line.includes('<div')) {
           const srcMatch = line.match(/src="([^"]+)"/);
           const altMatch = line.match(/alt="([^"]+)"/);
+          const widthMatch = line.match(/width="([^"]+)"/);
           if (srcMatch) {
             elements.push(
               <img 
-                key={index}
+                key={i}
                 src={srcMatch[1]} 
                 alt={altMatch ? altMatch[1] : ''} 
+                width={widthMatch ? widthMatch[1] : undefined}
                 className="max-w-full h-auto rounded-lg mb-4 mx-auto"
               />
             );
@@ -126,11 +170,11 @@ export default function ArticlePreviewDialog({
         // Bold text
         else if (line.includes('**')) {
           const parts = line.split('**');
-          const formatted = parts.map((part, i) => 
-            i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+          const formatted = parts.map((part, j) => 
+            j % 2 === 1 ? <strong key={j}>{part}</strong> : part
           );
           elements.push(
-            <p key={index} className="mb-4 leading-relaxed">
+            <p key={i} className="mb-4 leading-relaxed">
               {formatted}
             </p>
           );
@@ -138,7 +182,7 @@ export default function ArticlePreviewDialog({
         // Lists
         else if (line.startsWith('- ')) {
           elements.push(
-            <li key={index} className="ml-4">
+            <li key={i} className="ml-4">
               {line.slice(2)}
             </li>
           );
@@ -146,12 +190,14 @@ export default function ArticlePreviewDialog({
         // Regular paragraphs
         else if (line.trim() !== '') {
           elements.push(
-            <p key={index} className="mb-4 leading-relaxed">
+            <p key={i} className="mb-4 leading-relaxed">
               {line}
             </p>
           );
         }
-      });
+        
+        i++;
+      }
 
       return elements;
     } catch (error) {
