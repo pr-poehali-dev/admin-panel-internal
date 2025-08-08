@@ -168,16 +168,14 @@ export default function ArticlePreviewDialog({
             );
           }
         }
-        // Text with formatting (bold and/or italic)
-        else if (line.includes('**') || line.includes('*')) {
-          // Simple regex-based approach
-          let formatted = line;
+        // Text with formatting (bold, italic, and/or links)
+        else if (line.includes('**') || line.includes('*') || line.includes('[')) {
           const parts: (string | JSX.Element)[] = [];
           let lastIndex = 0;
           let keyCounter = 0;
           
-          // Match **bold** or *italic* text
-          const regex = /(\*\*([^*]+)\*\*|\*([^*]+)\*)/g;
+          // Combined regex for links, bold, and italic
+          const regex = /(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
           let match;
           
           while ((match = regex.exec(line)) !== null) {
@@ -186,13 +184,28 @@ export default function ArticlePreviewDialog({
               parts.push(line.substring(lastIndex, match.index));
             }
             
-            // Add formatted text
-            if (match[2]) {
+            // Process different match types
+            if (match[1]) {
+              // Link: [text](url)
+              const linkText = match[2];
+              const linkUrl = match[3];
+              parts.push(
+                <a 
+                  key={`format-${keyCounter++}`} 
+                  href={linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  {linkText}
+                </a>
+              );
+            } else if (match[4]) {
               // Bold text
-              parts.push(<strong key={`format-${keyCounter++}`}>{match[2]}</strong>);
-            } else if (match[3]) {
+              parts.push(<strong key={`format-${keyCounter++}`}>{match[5]}</strong>);
+            } else if (match[6]) {
               // Italic text
-              parts.push(<em key={`format-${keyCounter++}`}>{match[3]}</em>);
+              parts.push(<em key={`format-${keyCounter++}`}>{match[7]}</em>);
             }
             
             lastIndex = match.index + match[0].length;
@@ -211,11 +224,62 @@ export default function ArticlePreviewDialog({
         }
         // Lists
         else if (line.startsWith('- ')) {
-          elements.push(
-            <li key={i} className="ml-4">
-              {line.slice(2)}
-            </li>
-          );
+          const listContent = line.slice(2);
+          
+          // Process list item content for links and formatting
+          if (listContent.includes('[') || listContent.includes('**') || listContent.includes('*')) {
+            const parts: (string | JSX.Element)[] = [];
+            let lastIndex = 0;
+            let keyCounter = 0;
+            
+            const regex = /(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
+            let match;
+            
+            while ((match = regex.exec(listContent)) !== null) {
+              if (match.index > lastIndex) {
+                parts.push(listContent.substring(lastIndex, match.index));
+              }
+              
+              if (match[1]) {
+                // Link
+                parts.push(
+                  <a 
+                    key={`list-format-${keyCounter++}`} 
+                    href={match[3]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {match[2]}
+                  </a>
+                );
+              } else if (match[4]) {
+                // Bold
+                parts.push(<strong key={`list-format-${keyCounter++}`}>{match[5]}</strong>);
+              } else if (match[6]) {
+                // Italic
+                parts.push(<em key={`list-format-${keyCounter++}`}>{match[7]}</em>);
+              }
+              
+              lastIndex = match.index + match[0].length;
+            }
+            
+            if (lastIndex < listContent.length) {
+              parts.push(listContent.substring(lastIndex));
+            }
+            
+            elements.push(
+              <li key={i} className="ml-4">
+                {parts}
+              </li>
+            );
+          } else {
+            elements.push(
+              <li key={i} className="ml-4">
+                {listContent}
+              </li>
+            );
+          }
         }
         // Horizontal rule
         else if (line.trim() === '---') {
