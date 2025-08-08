@@ -1,14 +1,13 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MDXProvider } from '@mdx-js/react';
-import { ArticleListItem } from '@/services/api';
+import { ArticleDetail } from '@/services/api';
 import Icon from '@/components/ui/icon';
-import { AccordionGroup, AccordionSimple as Accordion } from '@/components/ui/accordion';
+
 
 interface ArticlePreviewDialogProps {
-  article: ArticleListItem | null;
-  content: string;
+  article: ArticleDetail | null;
+  loading: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -52,23 +51,25 @@ const mdxComponents = {
   td: (props: any) => (
     <td className="border border-gray-300 px-4 py-2" {...props} />
   ),
-  AccordionGroup,
-  Accordion,
 };
 
 export default function ArticlePreviewDialog({ 
   article, 
-  content, 
+  loading, 
   open, 
   onOpenChange 
 }: ArticlePreviewDialogProps) {
   // Parse and render MDX content
   const renderContent = () => {
+    if (!article || !article.content) {
+      return <p className="text-gray-500">Содержимое статьи недоступно</p>;
+    }
+    
     try {
       // Simple MDX rendering without compilation
       // For proper MDX rendering, you'd need to compile the content first
       // This is a simplified version that handles basic markdown
-      const lines = content.split('\n');
+      const lines = article.content.split('\n');
       const elements: React.ReactNode[] = [];
       let i = 0;
 
@@ -237,7 +238,7 @@ export default function ArticlePreviewDialog({
       return elements;
     } catch (error) {
       console.error('Error rendering MDX:', error);
-      return <pre className="whitespace-pre-wrap">{content}</pre>;
+      return <pre className="whitespace-pre-wrap">{article.content}</pre>;
     }
   };
 
@@ -251,7 +252,13 @@ export default function ArticlePreviewDialog({
         </DialogHeader>
         <ScrollArea className="h-[calc(90vh-120px)] pr-4">
           <div className="prose prose-gray max-w-none">
-            {renderContent()}
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Icon name="Loader2" size={32} className="animate-spin text-gray-400" />
+              </div>
+            ) : (
+              renderContent()
+            )}
           </div>
         </ScrollArea>
       </DialogContent>
