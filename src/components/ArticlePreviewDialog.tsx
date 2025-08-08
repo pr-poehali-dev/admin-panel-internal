@@ -167,15 +167,44 @@ export default function ArticlePreviewDialog({
             );
           }
         }
-        // Bold text
-        else if (line.includes('**')) {
-          const parts = line.split('**');
-          const formatted = parts.map((part, j) => 
-            j % 2 === 1 ? <strong key={j}>{part}</strong> : part
-          );
+        // Text with formatting (bold and/or italic)
+        else if (line.includes('**') || line.includes('*')) {
+          // Simple regex-based approach
+          let formatted = line;
+          const parts: (string | JSX.Element)[] = [];
+          let lastIndex = 0;
+          let keyCounter = 0;
+          
+          // Match **bold** or *italic* text
+          const regex = /(\*\*([^*]+)\*\*|\*([^*]+)\*)/g;
+          let match;
+          
+          while ((match = regex.exec(line)) !== null) {
+            // Add text before the match
+            if (match.index > lastIndex) {
+              parts.push(line.substring(lastIndex, match.index));
+            }
+            
+            // Add formatted text
+            if (match[2]) {
+              // Bold text
+              parts.push(<strong key={`format-${keyCounter++}`}>{match[2]}</strong>);
+            } else if (match[3]) {
+              // Italic text
+              parts.push(<em key={`format-${keyCounter++}`}>{match[3]}</em>);
+            }
+            
+            lastIndex = match.index + match[0].length;
+          }
+          
+          // Add remaining text
+          if (lastIndex < line.length) {
+            parts.push(line.substring(lastIndex));
+          }
+          
           elements.push(
             <p key={i} className="mb-4 leading-relaxed">
-              {formatted}
+              {parts.length > 0 ? parts : line}
             </p>
           );
         }
