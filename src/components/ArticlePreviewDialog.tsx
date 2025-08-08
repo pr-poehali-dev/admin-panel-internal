@@ -153,6 +153,83 @@ export default function ArticlePreviewDialog({
           continue;
         }
         
+        // Check if we're starting a numbered list
+        if (line.match(/^\d+\.\s/)) {
+          const listItems: React.ReactNode[] = [];
+          let listKey = i;
+          
+          // Collect all consecutive numbered list items
+          while (i < lines.length && lines[i].match(/^\d+\.\s/)) {
+            const listContent = lines[i].replace(/^\d+\.\s/, '');
+            
+            // Process list item content for links and formatting
+            if (listContent.includes('[') || listContent.includes('**') || listContent.includes('*')) {
+              const parts: (string | JSX.Element)[] = [];
+              let lastIndex = 0;
+              let keyCounter = 0;
+              
+              const regex = /(\[([^\]]+)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
+              let match;
+              
+              while ((match = regex.exec(listContent)) !== null) {
+                if (match.index > lastIndex) {
+                  parts.push(listContent.substring(lastIndex, match.index));
+                }
+                
+                if (match[1]) {
+                  // Link
+                  parts.push(
+                    <a 
+                      key={`num-list-format-${keyCounter++}`} 
+                      href={match[3]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {match[2]}
+                    </a>
+                  );
+                } else if (match[4]) {
+                  // Bold
+                  parts.push(<strong key={`num-list-format-${keyCounter++}`}>{match[5]}</strong>);
+                } else if (match[6]) {
+                  // Italic
+                  parts.push(<em key={`num-list-format-${keyCounter++}`}>{match[7]}</em>);
+                }
+                
+                lastIndex = match.index + match[0].length;
+              }
+              
+              if (lastIndex < listContent.length) {
+                parts.push(listContent.substring(lastIndex));
+              }
+              
+              listItems.push(
+                <li key={i} className="ml-4">
+                  {parts}
+                </li>
+              );
+            } else {
+              listItems.push(
+                <li key={i} className="ml-4">
+                  {listContent}
+                </li>
+              );
+            }
+            
+            i++;
+          }
+          
+          // Add the complete numbered list
+          elements.push(
+            <ol key={listKey} className="list-decimal list-inside mb-4 space-y-2">
+              {listItems}
+            </ol>
+          );
+          
+          continue;
+        }
+        
         // Check for HTML blocks (div with align center containing img)
         if (line.trim().startsWith('<div') && line.includes('align="center"')) {
           // Look for the complete div block
