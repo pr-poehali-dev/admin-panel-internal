@@ -57,6 +57,13 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    // Check if topic is filled
+    if (!newArticle.topic.trim()) {
+      alert('Пожалуйста, сначала введите тему статьи');
+      event.target.value = '';
+      return;
+    }
+
     // Check file sizes before compression
     const MAX_SIZE_MB = 10;
     const oversized = Array.from(files).filter(f => f.size > MAX_SIZE_MB * 1024 * 1024);
@@ -79,7 +86,7 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
       
       const response = await blogAPI.uploadImages(
         processedFiles,
-        newArticle.articleSlug || undefined
+        newArticle.topic
       );
 
       setNewArticle(prev => ({
@@ -152,14 +159,21 @@ export default function CreateArticleForm({ onArticleCreated }: CreateArticleFor
         </div>
         
         <div>
-          <Label htmlFor="image-upload" className="text-sm font-medium text-gray-700">Изображения для статьи</Label>
+          <Label htmlFor="image-upload" className="text-sm font-medium text-gray-700">
+            Изображения для статьи
+            {!newArticle.topic.trim() && (
+              <span className="text-xs text-gray-500 font-normal ml-2">
+                (сначала введите тему)
+              </span>
+            )}
+          </Label>
           <Input
             id="image-upload"
             type="file"
             multiple
             accept="image/*"
             onChange={handleImageUpload}
-            disabled={uploadingImages}
+            disabled={uploadingImages || !newArticle.topic.trim()}
             className="mt-1 border-gray-300"
           />
           {uploadingImages && (

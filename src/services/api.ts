@@ -167,7 +167,7 @@ class BlogAPI {
     });
   }
 
-  async uploadImages(files: File[], articleSlug?: string): Promise<ImagesUploadResponse> {
+  async uploadImages(files: File[], topic: string): Promise<ImagesUploadResponse> {
     // Check file sizes before upload
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
@@ -181,17 +181,17 @@ class BlogAPI {
     if (files.length > 1) {
       try {
         // First try all at once
-        return await this.uploadImagesInternal(files, articleSlug);
+        return await this.uploadImagesInternal(files, topic);
       } catch (error) {
         console.log('Batch upload failed, trying one by one...');
         
         // Upload one by one
         const allImages: any[] = [];
-        let resultSlug = articleSlug;
+        let resultSlug = '';
         
         for (const file of files) {
           try {
-            const result = await this.uploadImagesInternal([file], resultSlug);
+            const result = await this.uploadImagesInternal([file], topic);
             allImages.push(...result.images);
             resultSlug = result.article_slug;
           } catch (err) {
@@ -207,18 +207,16 @@ class BlogAPI {
       }
     }
     
-    return this.uploadImagesInternal(files, articleSlug);
+    return this.uploadImagesInternal(files, topic);
   }
 
-  private async uploadImagesInternal(files: File[], articleSlug?: string): Promise<ImagesUploadResponse> {
+  private async uploadImagesInternal(files: File[], topic: string): Promise<ImagesUploadResponse> {
     const formData = new FormData();
     files.forEach(file => {
       formData.append('files', file);
     });
 
-    const url = articleSlug 
-      ? `/blog/admin/images/upload?article_slug=${articleSlug}`
-      : '/blog/admin/images/upload';
+    const url = `/blog/admin/images/upload?topic=${encodeURIComponent(topic)}`;
 
     const headers: Record<string, string> = {};
     // Add auth for admin endpoints
